@@ -29,7 +29,7 @@ from Crypto import Random
 class EncryptedText(fields._String):
     """
     Identical to fields.Text, except encrypted in the database
-    
+
     :param translate: whether the value of this field can be translated
     """
     type = 'text'
@@ -106,4 +106,6 @@ class EncryptedText(fields._String):
         """
         if not value:
             return ''
-        return value if env.context.get('export_raw_data') else self.__decrypt(value)
+        if env.context.get('export_raw_data'):
+            return value
+        return self.__decrypt(value)
