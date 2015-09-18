@@ -18,10 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
+
+
 from openerp import fields
 import base64
 from Crypto.Cipher import AES
 from Crypto import Random
+
 
 class EncryptedText(fields._String):
     """
@@ -39,32 +42,35 @@ class EncryptedText(fields._String):
         Decrypt a value
         :param value: String to decrypt
         """
-        unpad = lambda s : s[:-ord(s[len(s)-1:])]
+        unpad = lambda s: s[:-ord(s[len(s)-1:])]
         value = base64.b64decode(value)
         iv = value[:16]
         cipher = AES.new(self.KEY, AES.MODE_CBC, iv)
         return unpad(cipher.decrypt(value[16:]))
-    
+
     def __encrypt(self, value):
         """
         Encrypt a value
         :param value: String to encrypt
         """
-        pad = lambda s: s + (BS - len(s) % BS) * chr(self.BS - len(s) % self.BS) 
+        BS = self.BS
+        pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
         value = pad(value)
         iv = Random.new().read(AES.block_size)
         cipher = AES.new(self.KEY, AES.MODE_CBC, iv)
         return base64.b64encode(iv + cipher.encrypt(value))
-    
+
     def convert_to_cache(self, value, record, validate=True):
-        """ convert ``value`` to the cache level in ``env``; ``value`` may come from
-            an assignment, or have the format of methods :meth:`BaseModel.read`
-            or :meth:`BaseModel.write`
+        """
+        convert ``value`` to the cache level in ``env``; ``value`` may come
+        from an assignment, or have the format of methods
+        :meth:`BaseModel.read` or :meth:`BaseModel.write`
 
-            :param record: the target record for the assignment, or an empty recordset
+        :param record: the target record for the assignment,
+            or an empty recordset
 
-            :param bool validate: when True, field-specific validation of
-                ``value`` will be performed
+        :param bool validate: when True, field-specific validation of
+            ``value`` will be performed
         """
         return self.__encrypt(value)
 
@@ -83,8 +89,8 @@ class EncryptedText(fields._String):
             :meth:`BaseModel.write`.
 
             :param target: optional, the record to be modified with this value
-            :param fnames: for relational fields only, an optional collection of
-                field names to convert
+            :param fnames: for relational fields only, an optional collection
+                of field names to convert
         """
         return value
 

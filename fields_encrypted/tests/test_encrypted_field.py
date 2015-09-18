@@ -52,7 +52,7 @@ class TestEncryptedText(TransactionCase):
         rec.update({
             'enc_test': 'Derp'
         })
-        
+
     def test_read_equals_orig(self, ):
         rec = self.mdl.create(self.fixture)
-        self.assertEqual(self.ORIG, rec.enc_text)    
+        self.assertEqual(self.ORIG, rec.enc_text)
